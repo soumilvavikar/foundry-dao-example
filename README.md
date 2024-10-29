@@ -148,3 +148,29 @@ This mechanism balances centralization and decentralization:
 - Requires multiple approvals to execute a decision
 - Often used in combination with other voting mechanisms
 - Provides an additional layer of security and consensus
+
+## Initial Setup
+
+```shell
+forge init
+
+forge install openzeppelin/openzeppelin-contracts --no-commit
+
+# Install the foundry devops package.
+forge install Cyfrin/foundry-devops  --no-commit
+```
+
+### Run Commands
+
+```shell
+# Build the project
+forge build
+
+# Runs the test we have written to test if the proxy work as expected
+forge test
+
+# Runs the code coverage
+forge coverage
+```
+
+![Test Evidence](readme-imgs/test-evidences.png)

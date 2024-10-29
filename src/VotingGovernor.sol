@@ -31,14 +31,23 @@ contract VotingGovernor is
         GovernorTimelockControl(_timelock)
     {}
 
+    /**
+     * @notice The delay before voting on a proposal may take place.
+     */
     function votingDelay() public pure override returns (uint256) {
-        return 7200; // 1 day
+        return 1; // 1 second
     }
 
+    /**
+     * @notice The duration that a vote may be active for, after it has been queued.
+     */
     function votingPeriod() public pure override returns (uint256) {
         return 50400; // 1 week
     }
 
+    /**
+     * @notice Proposal threshold from Governor
+     */
     function proposalThreshold() public pure override returns (uint256) {
         return 0;
     }

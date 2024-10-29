@@ -30,8 +30,8 @@ contract VotingGovernorTest is Test {
     address[] proposers;
     address[] executors;
 
-    bytes[] functionCalls;
-    address[] addressesToCall;
+    bytes[] callData;
+    address[] targets;
     uint256[] values;
 
     address public constant VOTER = address(1);
@@ -85,20 +85,23 @@ contract VotingGovernorTest is Test {
     function testGovernanceUpdatesContractV1() public {
         uint256 valueToStore = 777;
         string memory description = "Store 1 in ContractV1";
-        bytes memory encodedFunctionCall = abi.encodeWithSignature("store(uint256)", valueToStore);
-        addressesToCall.push(address(contractV1));
+        bytes memory encodedFunctionCall = abi.encodeWithSignature("setValue(uint256)", valueToStore);
+        targets.push(address(contractV1));
         values.push(0);
-        functionCalls.push(encodedFunctionCall);
-        // 1. Propose to the DAO
-        uint256 proposalId = governor.propose(addressesToCall, values, functionCalls, description);
+        callData.push(encodedFunctionCall);
 
+        // 1. Propose to the DAO
+        uint256 proposalId = governor.propose(targets, values, callData, description);
+
+        // Should return 0, as the proposal is in queue and is pending
         console.log("Proposal State:", uint256(governor.state(proposalId)));
         // governor.proposalSnapshot(proposalId)
         // governor.proposalDeadline(proposalId)
 
-        vm.warp(block.timestamp + VOTING_DELAY + 1);
-        vm.roll(block.number + VOTING_DELAY + 1);
+        vm.warp(block.timestamp + VOTING_DELAY + 10);
+        vm.roll(block.number + VOTING_DELAY + 10);
 
+        // Should be active now.
         console.log("Proposal State:", uint256(governor.state(proposalId)));
 
         // 2. Vote
@@ -115,12 +118,12 @@ contract VotingGovernorTest is Test {
 
         // 3. Queue
         bytes32 descriptionHash = keccak256(abi.encodePacked(description));
-        governor.queue(addressesToCall, values, functionCalls, descriptionHash);
+        governor.queue(targets, values, callData, descriptionHash);
         vm.roll(block.number + MIN_DELAY + 1);
         vm.warp(block.timestamp + MIN_DELAY + 1);
 
         // 4. Execute
-        governor.execute(addressesToCall, values, functionCalls, descriptionHash);
+        governor.execute(targets, values, callData, descriptionHash);
 
         assert(contractV1.getValue() == valueToStore);
     }
